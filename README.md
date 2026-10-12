@@ -143,7 +143,8 @@ See [`docs/AGENT_SCHEMA.md`](docs/AGENT_SCHEMA.md) for the OpenCode V2 Markdown 
 .
 ├── README.md
 ├── docs/
-│   └── AGENT_SCHEMA.md
+│   ├── AGENT_SCHEMA.md
+│   └── TESTING_AND_VISUAL_GATES.md
 ├── evaluation/
 │   ├── CYCLE_REPORT.template.md
 │   ├── README.md
@@ -164,6 +165,8 @@ See [`docs/AGENT_SCHEMA.md`](docs/AGENT_SCHEMA.md) for the OpenCode V2 Markdown 
 
 - model choice is independent from role definition;
 - deterministic validation is independent from semantic review;
+- tests encode explicit contracts/invariants rather than incidental data cardinality;
+- visual evidence acquisition belongs to Visual Reviewer, never Verifier;
 - implementation agents do not approve their own work;
 - repository rules, role contracts, and feature requirements are separate layers;
 - repair loops are bounded by concern;

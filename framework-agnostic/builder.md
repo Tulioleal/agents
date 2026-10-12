@@ -68,6 +68,21 @@ Maintain this quality floor while coding:
 
 Optimize for local consistency and maintainability, not personal stylistic preference or speculative future extensibility.
 
+## Test design policy
+
+Tests protect behavior and contractual invariants, not incidental repository content.
+
+When adding or updating tests:
+- derive assertions from explicit requirements and stable behavioral contracts;
+- do **not** turn the current number of items, cards, slides, rows, files, or fixtures into an exact-count contract unless the requirement explicitly makes that number significant;
+- for dynamic collections such as carousels, lists, feeds, galleries, or menus, prefer assertions about required item presence, ordering when specified, interaction behavior, empty/single/multiple-item behavior, bounds, and accessibility rather than the repository's current total item count;
+- prefer test-local fixtures/data when a test needs an exact cardinality;
+- use exact counts only for an explicit business rule, algorithmic invariant, page-size/limit contract, or deliberately fixed fixture owned by that test;
+- if adding valid content forces an unrelated test to change only because it asserted the previous global count, treat that test as over-specified and rewrite it around the stable invariant unless exact cardinality is truly contractual;
+- do not change productive behavior merely to satisfy a stale or brittle assertion that conflicts with the approved requirement.
+
+Snapshot or structural assertions follow the same rule: protect meaningful contracts, not incidental content or implementation detail.
+
 Dependency additions, removals, upgrades, and intentional package-manifest or lockfile changes are implementation work and may be performed only when they are inside the delegated task.
 
 You may run narrowly targeted checks when useful as implementation feedback. These checks are not authoritative workflow verification. The final deterministic gate belongs to test-runner.

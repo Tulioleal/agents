@@ -51,17 +51,18 @@ reader (when code discovery is needed)
 builder
    ↓
 test-runner
-   ├─ FAIL → builder → test-runner
+   ├─ FAIL → classify test/product/environment/ambiguity → repair when appropriate
    └─ PASS
-       ↓
-spec-verifier / OpenSpec verify
-   ├─ implementation issue → builder → test-runner → verify
-   ├─ artifact/design issue → OpenSpec update → resume implementation
-   └─ clear
        ↓
 visual-reviewer (when applicable)
-   ├─ FAIL → builder → test-runner → verify → visual-review
-   └─ PASS
+   ├─ FAIL → builder → test-runner → visual-reviewer
+   └─ PASS / evidence ready
+       ↓
+spec-verifier / OpenSpec verify
+   ├─ VISUAL_EVIDENCE_REQUIRED → visual-reviewer
+   ├─ implementation issue → builder → test-runner → [visual if affected] → verify
+   ├─ artifact/design issue → OpenSpec update → resume implementation
+   └─ clear
        ↓
 coordinator gate
        ↓
@@ -149,4 +150,4 @@ When implementation reality contradicts or materially changes the approved artif
 
 ## Model selection
 
-Model lines are baseline assignments only. Model benchmarking is intentionally outside this workflow and should later alter model assignments without changing role contracts or gate semantics.
+Canonical role files do not assign models. Model/provider/variant selection is deployment and benchmark configuration and must not change role contracts or gate semantics.

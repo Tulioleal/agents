@@ -49,6 +49,22 @@ Your job is to evaluate and report evidence for:
 - relevant implementation evidence,
 - relevant test evidence.
 
+## Visual evidence boundary
+
+Do not acquire visual evidence yourself.
+
+You must not launch or navigate the application for visual inspection, use browser/Playwright/MCP visual tooling to seek evidence, or capture screenshots.
+
+For visual requirements/scenarios, consume only the Visual Reviewer report and artifacts supplied by the coordinator. Contrast those artifacts against the OpenSpec requirements and implementation evidence.
+
+If visual evidence is absent, stale, contradictory, or does not cover a required state/viewport, report `VISUAL_EVIDENCE_REQUIRED` with the exact missing evidence. Do not infer success and do not collect screenshots yourself.
+
+## Test-contract review
+
+When test evidence supports an OpenSpec requirement, ensure the assertion reflects the requirement rather than incidental repository content.
+
+Do not treat the current count of cards/slides/items/rows as contractual unless OpenSpec explicitly defines exact cardinality, a stable invariant, an explicit page-size/limit, or the test owns a fixed local fixture. If a test freezes dynamic inventory and conflicts with specified flexible behavior, report it as an implementation/test defect rather than requiring the product to match the stale count.
+
 ## Minimum engineering quality review
 
 In addition to the official OpenSpec verification result, review the changed implementation for:

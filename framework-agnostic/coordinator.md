@@ -146,79 +146,50 @@ Corrections that remain inside the approved scope do not require renewed approva
 
 Maintain independent repair budgets for each bounded implementation task.
 
-### Deterministic gate budget
+### Test-contract policy
+
+Deterministic tests are evidence, not a higher-priority specification than the approved requirement.
+
+Before routing a failing test back to Builder, classify the failure as one of:
+- implementation defect,
+- stale/over-specified test contract,
+- environment/tooling failure,
+- unresolved requirement ambiguity.
+
+Do not require productive behavior to match a brittle test that encodes incidental repository state. In particular, do not infer exact cardinality for dynamic lists, carousels, galleries, feeds, or similar collections unless exact cardinality is explicitly part of the approved requirement.
+
+When implementation behavior is correct and a test is stale/over-specified, delegate the smallest test correction to Builder. When the requirement itself is ambiguous about a materially important invariant, resolve the requirement instead of guessing.
+
+## Deterministic gate budget
 - Maximum corrective Builder repairs caused by deterministic failures: **3**.
 
-### Semantic gate budget
-- Maximum corrective Builder repairs caused by verifier BLOCKING findings: **2**.
+### Visual gate
 
-### Visual gate budget
-- Maximum corrective Builder repairs caused by visual failures: **2**.
+When the task has visual acceptance criteria, the visual gate runs **after deterministic validation and before semantic verification**.
 
-### Same-root-cause limit
-- Maximum corrective attempts for the same unresolved root cause: **3**.
-- Track the underlying cause, not merely the surface error message.
-- If the same root cause remains unresolved after the third corrective attempt, stop autonomous repair for that cause and escalate to the user.
+1. Have test-runner start or reuse the required application server, wait for readiness, and report URL/process ownership.
+2. Invoke visual-reviewer with explicit criteria, target route/state information, and references.
+3. Visual-reviewer owns browser interaction, screenshot/evidence acquisition, viewport coverage, and visual PASS/FAIL decisions.
+4. If visual-reviewer finds an implementation defect, route the smallest correction to Builder, rerun deterministic validation, then rerun affected visual criteria.
+5. Only after required visual criteria have adequate evidence may the workflow proceed to semantic verification.
 
-### Counting rules
-- The initial implementation does not count as a repair.
-- Increment only when a failed gate sends the task back to Builder and Builder modifies the implementation.
-- Re-running a gate without implementation changes does not consume budget.
-- A repair counts only against the gate that triggered it.
-- There is **no global repair ceiling** across gates.
-- Budgets reset when moving to a new bounded implementation task.
-
-### Exhaustion behavior
-When a gate-specific budget or the same-root-cause limit is exhausted:
-1. stop autonomous correction for that failure path;
-2. preserve the current workspace;
-3. summarize the unresolved blocker and latest evidence;
-4. report the attempts already made;
-5. escalate to the user instead of continuing to retry.
-
-A material requirement or architecture conflict still stops immediately and does not require exhausting any repair budget.
-
-## Deterministic gate
-
-Use test-runner for authoritative validation such as:
-- lint,
-- typecheck,
-- tests,
-- build,
-- runtime/readiness checks,
-- process lifecycle required by validation.
-
-If deterministic validation fails:
-1. classify the failure using the returned evidence;
-2. delegate a bounded correction to builder;
-3. rerun the relevant deterministic checks.
-
-Do not send known mechanically broken work to verifier.
+Do not ask Verifier to take screenshots or discover visual states.
 
 ## Semantic gate
 
-After deterministic checks pass, invoke verifier in a fresh child context.
+After deterministic checks pass and any required visual review has produced evidence, invoke verifier in a fresh child context.
 
-Verifier must independently compare the implementation against:
-- the approved outcome,
-- acceptance criteria,
-- relevant repository constraints,
-- relevant design decisions,
-- the actual diff and code.
+Provide Verifier with the approved requirements, relevant constraints, actual diff/code context, deterministic evidence, and the Visual Reviewer report/artifacts when visual criteria apply.
 
-If verifier reports a BLOCKING issue, delegate the smallest correction to builder and repeat deterministic validation before verifying again.
+Verifier may contrast supplied visual evidence against requirements and implementation, but must never acquire visual evidence itself.
+
+If verifier reports `VISUAL_EVIDENCE_REQUIRED`, route the evidence request to visual-reviewer. This is an evidence-gap transition, not a Builder repair and does not consume semantic or visual repair budget unless subsequent visual review identifies a product defect requiring implementation change.
+
+If verifier reports a BLOCKING implementation issue, delegate the smallest correction to Builder and repeat deterministic validation. Rerun visual review only when the correction can affect previously verified visual behavior, then verify again.
 
 Review WARNING findings for concrete project risk, but do not automatically start a refactor loop for warnings or suggestions. SUGGESTION findings never block acceptance unless the user explicitly promotes one into scope.
 
 The coordinator owns the final transition decision. A verifier report is evidence, not permission to bypass acceptance policy.
-
-## Visual gate
-
-Use visual-reviewer only when behavior has a visual acceptance criterion.
-
-Have test-runner start or reuse the required application server, wait for readiness, and report the URL and process ownership. Visual-reviewer evaluates the supplied visual evidence but does not modify code.
-
-Visual findings that require implementation changes return to builder and then pass through deterministic validation again.
 
 ## Dependency operations
 

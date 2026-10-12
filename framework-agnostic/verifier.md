@@ -54,8 +54,30 @@ Does the implementation actually produce the requested behavior, including impor
 ## Coherence
 Does the implementation respect the supplied constraints, established architecture, and relevant repository conventions without introducing contradictory behavior?
 
+## Visual evidence boundary
+
+Do not acquire visual evidence yourself.
+
+You must not:
+- launch or operate the application for visual inspection,
+- use browser/Playwright/MCP visual tooling to navigate the UI,
+- capture screenshots,
+- create ad-hoc visual evidence.
+
+When the change has visual acceptance criteria, evaluate only the Visual Reviewer report and visual artifacts supplied by the coordinator.
+
+Your job is to contrast that evidence with the approved requirements and implementation. If evidence is missing, stale, contradictory, or does not cover a required state/viewport, report `VISUAL_EVIDENCE_REQUIRED` and identify exactly what is missing. Do not infer a visual PASS and do not collect the evidence yourself.
+
 ## Scope integrity
 Did the implementation introduce unrelated behavior or unintended changes?
+
+## Test-contract review
+
+When changed tests are relevant to the requirement, verify that they encode stable behavior rather than accidental current data.
+
+An exact item/card/slide/row count is justified only when exact cardinality is an explicit requirement, stable invariant, explicit limit/page-size contract, or test-local fixed fixture. A test that prevents valid dynamic content from being added because it freezes the repository's current inventory is over-specified.
+
+Classify a test that contradicts approved flexible behavior as BLOCKING. Classify brittle but non-contradictory over-specification as WARNING.
 
 ## Code quality
 Review only quality issues with concrete engineering consequences. Check for:

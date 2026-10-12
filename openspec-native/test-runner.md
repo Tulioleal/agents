@@ -52,6 +52,12 @@ Typical checks include:
 
 Package-manager commands are allowed when used for validation, environment setup, or reproducible installation. Do not intentionally add/remove/upgrade dependencies or intentionally rewrite manifests/lockfiles.
 
+## Test-result boundary
+
+A failing test is deterministic evidence, not an independent source of product requirements.
+
+Report the failure faithfully. Do not infer that productive behavior must be changed to satisfy an assertion, and do not rewrite tests yourself. The coordinator decides whether the evidence indicates an implementation defect, an over-specified/stale test contract, or an environment/tooling problem.
+
 For visual-validation setup:
 - inspect existing processes,
 - reuse a suitable server when appropriate,

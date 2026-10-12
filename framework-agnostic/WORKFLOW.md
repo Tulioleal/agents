@@ -33,18 +33,19 @@ reader (when discovery is needed)
 builder
   ↓
 test-runner
-  ├─ FAIL → builder → test-runner
+  ├─ FAIL → classify test/product/environment/ambiguity → repair when appropriate
   └─ PASS
        ↓
+visual-reviewer (when applicable)
+  ├─ FAIL → builder → test-runner → visual-reviewer
+  └─ PASS / evidence ready
+       ↓
     verifier
-       ├─ BLOCKING → builder → test-runner → verifier
-       └─ CLEAR
-            ↓
-      visual-reviewer (when applicable)
-            ├─ FAIL → builder → test-runner → verifier → visual-reviewer
-            └─ PASS
-                 ↓
-             complete
+  ├─ VISUAL_EVIDENCE_REQUIRED → visual-reviewer
+  ├─ BLOCKING → builder → test-runner → [visual if affected] → verifier
+  └─ CLEAR
+       ↓
+    complete
                  ↓
           commit proposal
 ```
@@ -111,11 +112,13 @@ Quality is layered:
 ## Separation rules
 
 - Builder may use targeted checks as feedback, but Test Runner owns the authoritative deterministic gate.
-- Verifier never fixes the implementation it reviews.
+- Verifier never fixes the implementation it reviews and never acquires visual evidence.
+- Visual Reviewer owns browser-based visual evidence acquisition and visual criteria evaluation.
+- Tests protect explicit behavior/invariants; incidental collection counts are not contracts unless requirements say they are.
 - Coordinator owns acceptance policy but should use independent evidence instead of re-performing every specialist's work.
 - Dependency mutation belongs to Builder; package-manager validation/setup belongs to Test Runner.
 - Git commit execution remains user-controlled unless explicitly authorized.
 
 ## Model selection
 
-Model assignments in these files are baseline placeholders matching the current setup. Role prompts and workflow semantics should remain unchanged when benchmarking alternative models later.
+Canonical role files do not assign models. Model/provider/variant selection is deployment and benchmark configuration and must not change role contracts or gate semantics.

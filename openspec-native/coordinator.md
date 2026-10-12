@@ -132,7 +132,21 @@ After every builder result inspect the actual workspace and diff. Never accept t
 
 Maintain independent repair budgets for each bounded OpenSpec implementation task.
 
-### Deterministic gate budget
+### Test-contract policy
+
+Deterministic tests are evidence, not a higher-priority specification than the approved requirement.
+
+Before routing a failing test back to Builder, classify the failure as one of:
+- implementation defect,
+- stale/over-specified test contract,
+- environment/tooling failure,
+- unresolved requirement ambiguity.
+
+Do not require productive behavior to match a brittle test that encodes incidental repository state. In particular, do not infer exact cardinality for dynamic lists, carousels, galleries, feeds, or similar collections unless exact cardinality is explicitly part of the approved requirement.
+
+When implementation behavior is correct and a test is stale/over-specified, delegate the smallest test correction to Builder. When the requirement itself is ambiguous about a materially important invariant, resolve the requirement instead of guessing.
+
+## Deterministic gate budget
 - Maximum corrective Builder repairs caused by deterministic failures: **3**.
 
 ### Semantic gate budget
@@ -183,41 +197,42 @@ After implementation, delegate authoritative mechanical validation to test-runne
 - runtime/readiness checks,
 - other repository-required deterministic validation.
 
-If the deterministic gate fails, send a bounded correction to builder and rerun the relevant checks.
+If the deterministic gate fails, classify it using the test-contract policy. Route implementation defects or stale/over-specified tests to the smallest bounded Builder correction; handle environment/tooling failures without changing productive behavior; then rerun the relevant checks.
 
 Do not invoke semantic verification while known deterministic failures remain.
 
+## Visual gate
+
+When the OpenSpec change contains visual requirements/scenarios, the visual gate runs **after deterministic validation and before OpenSpec semantic verification**.
+
+1. Have test-runner start/reuse the application and report readiness/URL/process ownership.
+2. Invoke visual-reviewer with the exact OpenSpec visual criteria, relevant route/state information, and references.
+3. Visual-reviewer owns browser interaction, screenshot/evidence acquisition, viewport coverage, and visual PASS/FAIL/UNVERIFIED results.
+4. If visual-reviewer finds an implementation defect, return to Builder, rerun deterministic validation, and repeat affected visual criteria.
+5. Proceed to spec-verifier only when required visual criteria have adequate evidence or an explicit evidence limitation is surfaced for coordinator decision.
+
+Do not ask spec-verifier to capture screenshots or discover visual states.
+
 ## OpenSpec semantic gate
 
-After deterministic validation passes, invoke spec-verifier in a fresh child context.
+After deterministic validation and any required visual evidence acquisition, invoke spec-verifier in a fresh child context.
 
-The verifier must execute the official OpenSpec verify workflow and independently inspect the implementation against the change artifacts.
+Provide the visual-reviewer report/artifacts whenever visual requirements apply. The spec-verifier may contrast supplied visual evidence against OpenSpec requirements, but it must not acquire screenshots or operate the UI itself.
 
 Treat verification findings as evidence. Enforce this acceptance policy before archive:
-
 - all required tasks complete,
 - deterministic gate PASS,
 - zero CRITICAL/blocking verification findings,
 - no applicable requirement or scenario left unverified without an explicit coordinator decision,
-- required visual gate PASS.
+- required visual criteria supported by adequate visual evidence and PASS.
 
-Warnings require coordinator review before archive, but do not automatically trigger refactoring. Suggestions never block archive unless the user explicitly promotes one into scope.
+If spec-verifier reports `VISUAL_EVIDENCE_REQUIRED`, route the request to visual-reviewer. An evidence-gap transition does not consume semantic or visual repair budget unless subsequent review finds a product defect requiring code changes.
 
-Treat code-quality findings using the same policy:
-- CRITICAL blocks archive,
-- WARNING requires risk review,
-- SUGGESTION is informational.
+Warnings require coordinator review before archive, but do not automatically trigger refactoring. Suggestions never block archive unless explicitly promoted into scope.
 
-If verification identifies an implementation defect, return to builder and then rerun deterministic validation before verifying again.
+If verification identifies an implementation defect, return to Builder and rerun deterministic validation. Rerun visual review only if the correction can affect visual behavior already evidenced, then verify again.
 
 If verification identifies an artifact/design problem, use the official OpenSpec update workflow instead of patching around the specification.
-
-## Visual gate
-
-When the OpenSpec change contains visual acceptance criteria:
-- have test-runner start/reuse the application and report readiness;
-- invoke visual-reviewer with the explicit OpenSpec visual criteria and evidence;
-- route implementation defects back through builder → deterministic gate → spec-verifier as appropriate.
 
 ## Dependency operations
 
